@@ -74,7 +74,7 @@ out. Invalid arguments exit with status 1 without printing.
 - **Log serialization** — one print mutex serializes all output. The stop
   flag is checked *inside* the lock, so no event can be printed after the
   burnout line; the timestamp is also taken inside the lock, so printed
-  timestamps never go backwards. Every line is flushed.
+  timestamps never go backwards.
 
 ## Thread synchronization mechanisms
 
