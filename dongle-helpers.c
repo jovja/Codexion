@@ -6,28 +6,64 @@
 /*   By: jjorge-a <jjorge-a@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/24 14:52:24 by jjorge-a          #+#    #+#             */
-/*   Updated: 2026/11/24 17:44:32 by jjorge-a         ###   ########.fr       */
+/*   Updated: 2026/11/25 11:34:55 by jjorge-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-void	coder_pair(t_simu *simu, int index, int *left, int *right)
+// arbiter lock held, no clock reads
+int	best_for_dongle(t_simu *simu, int idx, long now)
 {
-	*left = index;
-	*right = (index + 1) % simu->n_coders;
-	return ;
+	int			best;
+	int			i;
+	t_request	*reqs;
+
+	reqs = simu->queue.requests;
+	best = -1;
+	i = 0;
+	while (i < simu->queue.size)
+	{
+		if ((reqs[i].left == idx || reqs[i].right == idx)
+			&& pair_is_free(simu, reqs[i], now))
+		{
+			if (best == -1
+				|| is_better(reqs[i], reqs[best], simu->request_order))
+				best = i;
+		}
+		i++;
+	}
+	if (best == -1)
+		return (-1);
+	return (reqs[best].coder_id);
 }
 
-int	dongle_is_free(t_dongle *d, long now)
+int	best_for_both(t_simu *simu, t_request req, long now)
 {
-	if (d->holder == NULL && d->available_in <= now)
-		return (1);
-	return (0);
+	return (best_for_dongle(simu, req.left, now) == req.coder_id
+		&& best_for_dongle(simu, req.right, now) == req.coder_id);
 }
 
-int	pair_is_free(t_simu *simu, t_request req, long now)
+// sched_lock held
+int	pick_candidate(t_simu *simu, long now)
 {
-	return (dongle_is_free(&simu->dongles[req.left], now)
-		&& dongle_is_free(&simu->dongles[req.right], now));
+	int			best;
+	int			i;
+	t_request	*reqs;
+
+	reqs = simu->queue.requests;
+	best = -1;
+	i = 0;
+	while (i < simu->queue.size)
+	{
+		if (pair_is_free(simu, reqs[i], now)
+			&& best_for_both(simu, reqs[i], now))
+		{
+			if (best == -1
+				|| is_better(reqs[i], reqs[best], simu->request_order))
+				best = i;
+		}
+		i++;
+	}
+	return (best);
 }

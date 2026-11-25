@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   helpers2.c                                         :+:      :+:    :+:   */
+/*   threads-helpers.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jjorge-a <jjorge-a@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/12 16:51:48 by jjorge-a          #+#    #+#             */
-/*   Updated: 2026/11/24 18:03:49 by jjorge-a         ###   ########.fr       */
+/*   Updated: 2026/11/25 11:43:02 by jjorge-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ void	check_burnout(t_simu *sim, int i)
 		return ;
 	if (now - sim->coders[i].last_compile >= sim->burnout_ms)
 	{
-		printf("%ld %d burned out\n", now - sim->start_ms, i + 1);
+		logger("burned out", sim->coders[i].index, sim);
 		stop_and_wake(sim);
 		sim->burned_out = 1;
 	}
@@ -58,7 +58,6 @@ void	logger(const char *log, int coder_id, t_simu *simu)
 		return ;
 	}
 	printf("%ld %i %s\n", now_ms() - simu->start_ms, coder_id + 1, log);
-	fflush(stdout);
 	pthread_mutex_unlock(&simu->print_lock);
 	return ;
 }

@@ -6,27 +6,81 @@
 /*   By: jjorge-a <jjorge-a@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/27 15:11:07 by jjorge-a          #+#    #+#             */
-/*   Updated: 2026/11/24 17:53:45 by jjorge-a         ###   ########.fr       */
+/*   Updated: 2026/11/25 11:32:52 by jjorge-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-void	compiling(int compile_time)
+// everyone re-checks
+void	grant_ready(t_simu *simu)
 {
-	go_to_sleep(compile_time);
+	int			idx;
+	t_request	req;
+
+	if (simu->stop)
+		return ;
+	while (1)
+	{
+		idx = pick_candidate(simu, now_ms());
+		if (idx == -1)
+			return ;
+		req = simu->queue.requests[idx];
+		simu->dongles[req.left].holder = &simu->coders[req.coder_id];
+		simu->dongles[req.right].holder = &simu->coders[req.coder_id];
+		simu->coders[req.coder_id].granted = 1;
+		heap_remove_id(&simu->queue, req.coder_id, simu->request_order);
+		logger("has taken a dongle", req.coder_id, simu);
+		logger("has taken a dongle", req.coder_id, simu);
+		pthread_cond_broadcast(&simu->sched_ready);
+	}
 	return ;
 }
 
-void	debuging(int debug_time)
+int	request_dongle(t_coder *coder, t_simu *simu)
 {
-	go_to_sleep(debug_time);
-	return ;
+	t_request	req;
+
+	build_request(&req, coder, simu);
+	coder->granted = 0;
+	pthread_mutex_lock(&simu->sched_lock);
+	heap_insert(&simu->queue, req, simu->request_order);
+	while (!coder->granted)
+	{
+		if (simu->stop)
+			return (abandon_request(simu, req));
+		grant_ready(simu);
+		if (!coder->granted)
+			wait_for_pair(simu, req);
+	}
+	pthread_mutex_unlock(&simu->sched_lock);
+	return (1);
 }
 
-void	refracting(int refrac_time)
+
+void	release_dongles(t_coder *coder, t_simu *simu)
 {
-	go_to_sleep(refrac_time);
+	int		left;
+	int		right;
+	long	now;
+
+	pthread_mutex_lock(&simu->sched_lock);
+	coder_pair(simu, coder->index, &left, &right);
+	now = now_ms();
+	if (simu->dongles[left].holder == coder)
+	{
+		simu->dongles[left].holder = NULL;
+		simu->dongles[left].available_in = now + simu->dongles[left].cooldown;
+	}
+	if (simu->dongles[right].holder == coder)
+	{
+		simu->dongles[right].holder = NULL;
+		simu->dongles[right].available_in = now + simu->dongles[right].cooldown;
+	}
+	coder->granted = 0;
+	pthread_cond_broadcast(&simu->sched_ready);
+	grant_ready(simu);
+	pthread_mutex_unlock(&simu->sched_lock);
 	return ;
 }
 
@@ -44,17 +98,17 @@ void	*cycle(void *arg)
 			break ;
 		t->last_compile = now_ms();
 		logger("is compiling", t->index, t->sim);
-		compiling(t->compile_ms);
+		go_to_sleep(t->compile_ms);
 		t->compiles_done++;
 		release_dongles(t, t->sim);
 		if (t->sim->stop)
 			break ;
 		logger("is debugging", t->index, t->sim);
-		debuging(t->debug_ms);
+		go_to_sleep(t->debug_ms);
 		if (t->sim->stop)
 			break ;
 		logger("is refactoring", t->index, t->sim);
-		refracting(t->refract_ms);
+		go_to_sleep(t->refract_ms);
 	}
 	if (t->granted)
 		release_dongles(t, t->sim);

@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   helpers.c                                          :+:      :+:    :+:   */
+/*   general-helpers.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jjorge-a <jjorge-a@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/16 17:14:14 by jjorge-a          #+#    #+#             */
-/*   Updated: 2026/11/24 13:39:33 by jjorge-a         ###   ########.fr       */
+/*   Updated: 2026/11/25 11:35:04 by jjorge-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,35 +61,4 @@ long	ft_atol(const char *nptr)
 	if (number <= INT_MAX)
 		return (signal * number);
 	return (-1);
-}
-
-int	heap_find_index(t_queue *h, int coder_id)
-{
-	int	i;
-
-	i = 0;
-	while (i < h->size)
-	{
-		if (h->requests[i].coder_id == coder_id)
-			return (i);
-		i ++;
-	}
-	return (-1);
-}
-
-int	is_better(t_request a, t_request b, int req_ord)
-{
-	if (req_ord == 0)
-	{
-		if (a.arrival_ms != b.arrival_ms)
-			return (a.arrival_ms < b.arrival_ms);
-	}
-	else
-	{
-		if (a.deadline != b.deadline)
-			return (a.deadline < b.deadline);
-		if (a.arrival_ms != b.arrival_ms)
-			return (a.arrival_ms < b.arrival_ms);
-	}
-	return (a.coder_id < b.coder_id);
 }

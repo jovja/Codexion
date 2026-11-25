@@ -6,7 +6,7 @@
 /*   By: jjorge-a <jjorge-a@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/19 17:43:21 by jjorge-a          #+#    #+#             */
-/*   Updated: 2026/11/24 17:34:50 by jjorge-a         ###   ########.fr       */
+/*   Updated: 2026/11/25 11:35:51 by jjorge-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,4 +69,31 @@ long	now_ms(void)
 
 	gettimeofday(&start, NULL);
 	return (start.tv_sec * 1000 + start.tv_usec / 1000);
+}
+
+struct	timespec	abs_time(long delta_ms)
+{
+	struct timespec	ts;
+
+	clock_gettime(CLOCK_REALTIME, &ts);
+	ts.tv_sec += delta_ms / 1000;
+	ts.tv_nsec += (delta_ms % 1000) * 1000000L;
+	if (ts.tv_nsec >= 1000000000L)
+	{
+		ts.tv_nsec -= 1000000000L;
+		ts.tv_sec += 1;
+	}
+	return (ts);
+}
+
+void	wait_for_pair(t_simu *simu, t_request req)
+{
+	struct timespec	ts;
+	int				ret;
+
+	ts = abs_time(wait_ms_for(simu, req, now_ms()));
+	ret = pthread_cond_timedwait(&simu->sched_ready, &simu->sched_lock, &ts);
+	if (ret != 0 && ret != ETIMEDOUT)
+		fprintf(stderr, "sched wait error %d\n", ret);
+	return ;
 }

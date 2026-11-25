@@ -3,8 +3,8 @@ NAME		= codexion
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -I.
 
-SRCS		= main.c initializer.c cleaners.c helpers.c helpers2.c helpers3.c \
-              heapers.c dongle-helpers.c dongles-cycle.c cyclers.c time-helpers.c
+SRCS		= main.c runner.c initializer.c heapers.c cleaners.c cyclers.c request.c \
+              dongle-helpers.c general-helpers.c heap-helpers.c threads-helpers.c time-helpers.c
 
 OBJS = $(SRCS:.c=.o)
 
