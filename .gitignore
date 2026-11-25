@@ -1,0 +1,6 @@
+*.o
+storage.txt
+notes.txt
+a.out
+codexion
+run_program.sh
