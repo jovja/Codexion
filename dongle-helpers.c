@@ -6,7 +6,7 @@
 /*   By: jjorge-a <jjorge-a@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/24 14:52:24 by jjorge-a          #+#    #+#             */
-/*   Updated: 2026/11/25 11:34:55 by jjorge-a         ###   ########.fr       */
+/*   Updated: 2026/11/25 14:42:20 by jjorge-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,4 +66,28 @@ int	pick_candidate(t_simu *simu, long now)
 		i++;
 	}
 	return (best);
+}
+
+void	lock_pair(t_simu *simu, int left, int right)
+{
+	int	first;
+	int	second;
+
+	first = left;
+	second = right;
+	if (right < left)
+	{
+		first = right;
+		second = left;
+	}
+	pthread_mutex_lock(&simu->dongles[first].lock);
+	if (first != second)
+		pthread_mutex_lock(&simu->dongles[second].lock);
+}
+
+void	unlock_pair(t_simu *simu, int left, int right)
+{
+	pthread_mutex_unlock(&simu->dongles[left].lock);
+	if (left != right)
+		pthread_mutex_unlock(&simu->dongles[right].lock);
 }

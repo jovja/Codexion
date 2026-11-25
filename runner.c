@@ -6,7 +6,7 @@
 /*   By: jjorge-a <jjorge-a@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/25 10:54:21 by jjorge-a          #+#    #+#             */
-/*   Updated: 2026/11/25 10:59:46 by jjorge-a         ###   ########.fr       */
+/*   Updated: 2026/11/25 12:14:01 by jjorge-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,10 +74,7 @@ int	run_program(const	int	*settings, char *request_order)
 	if (!fill_data(settings, coders, dongles, &simu))
 		return (free_arrays(threads, coders, dongles, 0));
 	if (!start_up(threads, coders, &simu))
-	{
-		printf("Something bad happened\n");
 		return (clean_data(&simu, threads, 0));
-	}
 	if (!simu.burned_out)
 		return (clean_data(&simu, threads, 1));
 	return (clean_data(&simu, threads, 1));

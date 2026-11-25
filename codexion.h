@@ -6,7 +6,7 @@
 /*   By: jjorge-a <jjorge-a@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/16 17:12:22 by jjorge-a          #+#    #+#             */
-/*   Updated: 2026/11/25 11:38:55 by jjorge-a         ###   ########.fr       */
+/*   Updated: 2026/11/25 12:38:53 by jjorge-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,6 +97,8 @@ int			heap_find_index(t_queue *h, int coder_id);
 // dongle-helpers
 int			pick_candidate(t_simu *simu, long now);
 int			pair_is_free(t_simu *simu, t_request req, long now);
+void		lock_pair(t_simu *simu, int left, int right);
+void		unlock_pair(t_simu *simu, int left, int right);
 
 // cleaners
 int			free_arrays(pthread_t *t, t_coder *c, t_dongle *d, int error_code);
